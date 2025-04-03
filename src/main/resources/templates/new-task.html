@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Novi zadatak</title>
+</head>
+<body>
+<h2>Dodaj novi zadatak</h2>
+<form th:action="@{/tasks/new}" method="post">
+    <div>
+        <label>TaskName:</label>
+        <input type="text" name="taskName" required>
+    </div>
+    <div>
+        <label>Description:</label>
+        <textarea name="description"></textarea>
+    </div>
+    <div>
+        <label>Difficulty:</label>
+        <select name="taskDifficulty">
+            <option th:each="difficulty : ${difficulties}"
+                    th:value="${difficulty}"
+                    th:text="${difficulty}">
+            </option>
+        </select>
+    </div>
+    <button type="submit">Save</button>
+</form>
+</body>
+</html>
