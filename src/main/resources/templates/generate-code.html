@@ -1,15 +1,11 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Generiši kod</title>
+    <title>Generate Invite Code</title>
 </head>
 <body>
-<div class="container">
-    <h2>Generiši kod za povezivanje</h2>
-    <form th:action="@{/connect/generate}" method="post">
-        <button type="submit">Generiši kod</button>
-    </form>
-    <p th:if="${code}" th:text="'Tvoj kod: ' + ${code}"></p>
-</div>
+<h1>Generated Invite Code:</h1>
+<p>Your invite code is: <span th:text="${inviteCode}"></span></p>
+<a href="/tasks">Back to Tasks</a>
 </body>
 </html>

@@ -9,12 +9,14 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface UserRepo extends JpaRepository<User, String> {
+public interface UserRepo extends JpaRepository<User, Integer> {
 
-    public List<User> findAll();
+    List<User> findAll();
 
-    public User findById(int id);
+    User findById(int id);
 
     User findByUserName(String userName);
+
+    User findByInviteCode(String inviteCode);
 
 }

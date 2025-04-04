@@ -1,48 +1,64 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Lista zadataka</title>
+    <title>Tasks</title>
     <style>
         .container {
             display: flex;
+            justify-content: space-between;
         }
-        .user {
-            width: 200px;
+        .user-column, .joined-user-column {
+            width: 45%;
             padding: 10px;
-            border-right: 2px solid black;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #f9f9f9;
         }
-        .tasks {
-            flex-grow: 1;
-            padding: 10px;
+        .tasks-section {
+            margin-top: 20px;
         }
     </style>
 </head>
 <body>
 <div class="container">
-
-    <div class="user">
-        <h3>User</h3>
-        <p th:text="${user.userName}"></p>
-    </div>
-
-    <div class="tasks">
-        <h1>Tasks list:</h1>
-        <form th:action="@{/tasks/new}" method="GET">
-            <button type="submit">Add New Task</button>
+    <!-- Inviter korisnik -->
+    <div class="user-column">
+        <h3>Inviter User</h3>
+        <p th:if="${currentUser != null}">Username: <span th:text="${currentUser.userName}"></span></p>
+        <p th:if="${currentUser == null}">No inviter found.</p>
+        <form th:action="@{/users/connect/generate}" method="GET">
+            <button type="submit">Generate Invite Code</button>
         </form>
+    </div>
 
-        <div th:if="${user.group != null}">
-            <ul>
-                <li th:each="task : ${tasks}" th:text="${task.taskName}"></li>
-            </ul>
-        </div>
+    <!-- Trenutni pridruženi korisnik -->
+    <div class="joined-user-column">
+        <h3>Joined User</h3>
+        <p th:if="${joinedUser != null}">Username: <span th:text="${joinedUser.userName}"></span></p>
     </div>
-    <div class="connect-options">
-        <a href="/connect/generate" class="button">Generiši kod</a>
-    </div>
-    <form th:action="@{/logout}" method="POST">
-        <button type="submit">Logout</button>
-    </form>
 </div>
+
+<!-- Sekcija zadataka -->
+<div class="tasks-section">
+    <h1>Tasks List:</h1>
+    <form th:action="@{/tasks/new}" method="GET">
+        <button type="submit">Add New Task</button>
+    </form>
+
+    <ul>
+        <li th:each="task : ${tasks}">
+            <span th:text="${task.taskName}"></span>
+            <span> - Difficulty: <span th:text="${task.taskDifficulty}"></span></span>
+            <span> - Status: <span th:text="${task.taskStatus}"></span></span>
+            <form th:action="@{/tasks/assign/{id}(id=${task.id})}" method="POST" th:if="${task.taskStatus == 'OPEN'}">
+                <button type="submit">Take Task</button>
+            </form>
+        </li>
+    </ul>
+</div>
+
+<form th:action="@{/logout}" method="POST">
+    <button type="submit">Logout</button>
+</form>
 </body>
 </html>

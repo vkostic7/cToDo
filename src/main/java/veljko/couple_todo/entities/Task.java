@@ -2,6 +2,9 @@ package veljko.couple_todo.entities;
 
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table(name = "tasks")
 public class Task {
@@ -24,9 +27,20 @@ public class Task {
     @Column(name = "task_status")
     private TaskStatus taskStatus;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "group_id")
-    private Group group;
+    @OneToMany(mappedBy = "task", cascade = CascadeType.ALL)
+    private List<UserTask> userTasks = new ArrayList<>();
+
+    @ManyToOne
+    @JoinColumn(name = "creator_id", nullable = false)
+    private User creator;
+
+    public User getCreator() {
+        return creator;
+    }
+
+    public void setCreator(User creator) {
+        this.creator = creator;
+    }
 
     public int getId() {
         return id;
@@ -68,13 +82,11 @@ public class Task {
         this.taskStatus = taskStatus;
     }
 
-    public Group getGroup() {
-        return group;
+    public List<UserTask> getUserTasks() {
+        return userTasks;
     }
 
-    public void setGroup(Group group) {
-        this.group = group;
+    public void setUserTasks(List<UserTask> userTasks) {
+        this.userTasks = userTasks;
     }
-
-
 }
