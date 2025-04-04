@@ -2,7 +2,7 @@ package veljko.couple_todo.entities;
 
 import jakarta.persistence.*;
 
-import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -19,12 +19,30 @@ public class User {
     @Column(name = "password")
     private String password;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "group_id")
-    private Group group;
+    @Column(name = "invite_code")
+    private String inviteCode;
 
-    @Enumerated(EnumType.STRING)
-    private ConnectionStatus status = ConnectionStatus.UNCONNECTED;
+    @OneToMany(mappedBy = "user", cascade = {CascadeType.PERSIST, CascadeType.REMOVE}, orphanRemoval = true)
+    private List<UserTask> userTasks = new ArrayList<>();
+
+    @OneToMany(mappedBy = "inviter", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<UserConnection> invitedUsers = new ArrayList<>();
+
+    public List<UserConnection> getInvitedUsers() {
+        return invitedUsers;
+    }
+
+    public void setInvitedUsers(List<UserConnection> invitedUsers) {
+        this.invitedUsers = invitedUsers;
+    }
+
+    public String getInviteCode() {
+        return inviteCode;
+    }
+
+    public void setInviteCode(String inviteCode) {
+        this.inviteCode = inviteCode;
+    }
 
     public int getId() {
         return id;
@@ -50,21 +68,11 @@ public class User {
         this.password = password;
     }
 
-    public Group getGroup() {
-        return group;
+    public List<UserTask> getUserTasks() {
+        return userTasks;
     }
 
-    public void setGroup(Group group) {
-        this.group = group;
+    public void setUserTasks(List<UserTask> userTasks) {
+        this.userTasks = userTasks;
     }
-
-    public ConnectionStatus getStatus() {
-        return status;
-    }
-
-    public void setStatus(ConnectionStatus status) {
-        this.status = status;
-    }
-
-
 }

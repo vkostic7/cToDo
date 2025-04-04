@@ -61,13 +61,13 @@
 <body>
 <div class="container">
     <h2>How would you like to use Todo?</h2>
-
     <a href="/tasks" class="button">Create tasks alone</a>
-
-    <form th:action="@{/connect/join}" method="post">
-        <input type="text" name="code" required placeholder="Enter code">
-        <button type="submit">Join a Team</button>
+    <form th:action="@{/users/connect}" method="POST">
+        <label for="inviteCode">Invite Code:</label>
+        <input type="text" id="inviteCode" name="inviteCode" placeholder="Invite Code" required>
+        <button type="submit">Join</button>
     </form>
 </div>
+
 </body>
 </html>
