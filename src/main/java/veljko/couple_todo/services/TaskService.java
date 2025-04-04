@@ -16,7 +16,7 @@ import java.util.List;
 @Service
 public class TaskService {
 
-    private final TaskRepo taskRepo;
+    private TaskRepo taskRepo;
     private UserTaskRepo userTaskRepo;
     private UserService userService;
 
@@ -31,29 +31,8 @@ public class TaskService {
        return taskRepo.findById(id);
     }
 
-    public List<Task> getTasksForUser(int userId) {
-        return taskRepo.findTasksByUserAccess(userId);
-    }
-
-    public List<Task> getTaskByStatus(TaskStatus status) {
-        return taskRepo.findByTaskStatus(status);
-    }
-
-    public List<Task> getAllTasks() {
-        return taskRepo.findAll();
-    }
-
     @Transactional
-    public Task addTask(Task task) {
-        if (task.getCreator() == null) {
-            throw new RuntimeException("Task must have a creator!");
-        }
-        task.setTaskStatus(TaskStatus.OPEN);
-        return taskRepo.save(task);
-    }
-
-    @Transactional
-    public Task addTaskWithRelation(Task task, User user) {
+    public void addTaskWithRelation(Task task, User user) {
         if (task.getCreator() == null) {
             throw new RuntimeException("Task must have a creator!");
         }
@@ -61,13 +40,10 @@ public class TaskService {
         task.setTaskStatus(TaskStatus.OPEN);
         Task savedTask = taskRepo.save(task);
 
-        // Dodaj zapis u user_tasks
         UserTask ut = new UserTask();
         ut.setUser(user);
         ut.setTask(savedTask);
         userTaskRepo.save(ut);
-
-        return savedTask;
     }
 
     @Transactional
@@ -77,6 +53,7 @@ public class TaskService {
         return taskRepo.save(task);
     }
 
+    @Transactional
     public List<Task> getTasksForUserAndConnections(int userId) {
         List<Integer> userIds = new ArrayList<>();
         userIds.add(userId);

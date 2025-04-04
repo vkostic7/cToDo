@@ -57,6 +57,9 @@ public class SecurityConfig {
     public UserDetailsService userDetailsService() {
         return username -> {
             User user = userRepo.findByUserName(username);
+            if (user == null) {
+                throw new UsernameNotFoundException("User not found");
+            }
             return org.springframework.security.core.userdetails.User
                     .withUsername(user.getUserName())
                     .password(user.getPassword())

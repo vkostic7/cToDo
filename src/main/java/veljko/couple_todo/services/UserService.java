@@ -14,12 +14,16 @@ import java.util.UUID;
 @Service
 public class UserService {
 
-    @Autowired
     private UserRepo userRepo;
-    @Autowired
     private PasswordEncoder passwordEncoder;
-    @Autowired
     private UserConnectionRepo userConnectionRepo;
+
+    @Autowired
+    public UserService(UserRepo userRepo, PasswordEncoder passwordEncoder, UserConnectionRepo userConnectionRepo) {
+        this.userRepo = userRepo;
+        this.passwordEncoder = passwordEncoder;
+        this.userConnectionRepo = userConnectionRepo;
+    }
 
     public User findByUsername(String username) {
         return userRepo.findByUserName(username);
@@ -49,6 +53,7 @@ public class UserService {
         return inviteCode;
     }
 
+    @Transactional
     public User getInviterForUser(int invitedUserId) {
         UserConnection connection = userConnectionRepo.findByInvitedId(invitedUserId);
         if (connection != null) {
@@ -89,6 +94,7 @@ public class UserService {
         userRepo.save(inviter); // Sačuvaj pozivaoca sa vezama
     }
 
+    @Transactional
     public User getConnectedUser(int currentUserId) {
         UserConnection asInviter = userConnectionRepo.findByInviterId(currentUserId);
         if (asInviter != null) {
@@ -102,6 +108,4 @@ public class UserService {
 
         return null;
     }
-
-
 }
