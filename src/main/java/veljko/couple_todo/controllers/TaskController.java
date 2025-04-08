@@ -30,25 +30,24 @@ public class TaskController {
 
     @GetMapping("/tasks")
     public String showTasks(Model model) {
-        // 1. Dohvati trenutno ulogovanog korisnika
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String username = auth.getName();
         User currentUser = userService.findByUsername(username);
 
-        // 2. Postavi u model
         model.addAttribute("currentUser", currentUser);
 
-        // 3. Ko je povezan sa mnom?
         User joinedUser = userService.getConnectedUser(currentUser.getId());
         model.addAttribute("joinedUser", joinedUser);
 
-        // 4. Lista taskova
         List<Task> tasks = taskService.getTasksForUserAndConnections(currentUser.getId());
         model.addAttribute("tasks", tasks);
 
         return "tasks";
     }
 
+     /**
+     * Adding New Tasks
+     **/
     @GetMapping("/tasks/new")
     public String showTaskForm(Model model) {
         model.addAttribute("task", new Task());
@@ -64,12 +63,11 @@ public class TaskController {
         if (currentUser == null) {
             throw new RuntimeException("Current user must exist before creating a task");
         }
+
         task.setCreator(currentUser);
-        task.setTaskStatus(TaskStatus.OPEN);
-        taskService.addTask(task);
+        taskService.addTaskWithRelation(task, currentUser);
         return "redirect:/tasks";
     }
-
 
     @PostMapping("/tasks/assign/{taskId}")
     public String assignTaskToUser(@PathVariable int taskId) {
@@ -88,6 +86,12 @@ public class TaskController {
         userService.save(user);
 
         task.setTaskStatus(TaskStatus.IN_PROGRESS);
+        return "redirect:/tasks";
+    }
+
+    @PostMapping("/tasks/delete/{taskId}")
+    public String deleteTask(@PathVariable int taskId) {
+        taskService.deleteTask(taskId);
         return "redirect:/tasks";
     }
 

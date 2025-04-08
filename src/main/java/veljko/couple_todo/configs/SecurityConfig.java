@@ -57,6 +57,12 @@ public class SecurityConfig {
     public UserDetailsService userDetailsService() {
         return username -> {
             User user = userRepo.findByUserName(username);
+            if (user == null) {
+                throw new UsernameNotFoundException("User not found");
+            }
+            System.out.println("Login pokušaj: " + user.getUserName());
+            System.out.println("Lozinka iz baze: " + user.getPassword());
+            System.out.println("Invite code: " + user.getInviteCode());
             return org.springframework.security.core.userdetails.User
                     .withUsername(user.getUserName())
                     .password(user.getPassword())

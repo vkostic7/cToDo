@@ -14,12 +14,16 @@ import java.util.UUID;
 @Service
 public class UserService {
 
-    @Autowired
     private UserRepo userRepo;
-    @Autowired
     private PasswordEncoder passwordEncoder;
-    @Autowired
     private UserConnectionRepo userConnectionRepo;
+
+    @Autowired
+    public UserService(UserRepo userRepo, PasswordEncoder passwordEncoder, UserConnectionRepo userConnectionRepo) {
+        this.userRepo = userRepo;
+        this.passwordEncoder = passwordEncoder;
+        this.userConnectionRepo = userConnectionRepo;
+    }
 
     public User findByUsername(String username) {
         return userRepo.findByUserName(username);
@@ -49,46 +53,16 @@ public class UserService {
         return inviteCode;
     }
 
+    @Transactional
     public User getInviterForUser(int invitedUserId) {
         UserConnection connection = userConnectionRepo.findByInvitedId(invitedUserId);
         if (connection != null) {
-            return connection.getInviter(); // Vrati pozivaoca (inviter)
+            return connection.getInviter();
         }
-        return null; // Ako nema konekcije, vrati null
+        return null;
     }
-
 
     @Transactional
-    public void connectUsers(String inviteCode, User invitedUser) {
-        // Proveri da li pozivni kod postoji
-        User inviter = userRepo.findByInviteCode(inviteCode);
-
-        if (inviter == null) {
-            throw new RuntimeException("Invalid invite code");
-        }
-
-        // Proveri da li je lozinka za invitedUser postavljena
-        if (invitedUser.getPassword() == null || invitedUser.getPassword().isEmpty()) {
-            throw new RuntimeException("Password cannot be null or empty");
-        }
-
-        // Šifruj lozinku za invitedUser
-        invitedUser.setPassword(passwordEncoder.encode(invitedUser.getPassword()));
-
-        // Sačuvaj invitedUser pre dodavanja veze ako još nije sačuvan
-        if (invitedUser.getId() == 0) {
-            invitedUser = userRepo.save(invitedUser);
-        }
-
-        // Kreiraj vezu između inviter i invitedUser
-        UserConnection connection = new UserConnection();
-        connection.setInviter(inviter);
-        connection.setInvited(invitedUser);
-
-        inviter.getInvitedUsers().add(connection);
-        userRepo.save(inviter); // Sačuvaj pozivaoca sa vezama
-    }
-
     public User getConnectedUser(int currentUserId) {
         UserConnection asInviter = userConnectionRepo.findByInviterId(currentUserId);
         if (asInviter != null) {
@@ -102,6 +76,4 @@ public class UserService {
 
         return null;
     }
-
-
 }

@@ -17,11 +17,39 @@
         .tasks-section {
             margin-top: 20px;
         }
+        .task-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            padding: 5px;
+            border-bottom: 1px solid #eee;
+        }
+        .task-details {
+            flex-grow: 1;
+        }
+        .task-actions form {
+            display: inline;
+            margin-left: 5px;
+        }
+        .task-actions button {
+            padding: 5px 10px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        .task-actions .delete-button {
+            background-color: #f44336;
+            color: white;
+        }
+        .task-actions .take-button {
+            background-color: #4CAF50;
+            color: white;
+        }
     </style>
 </head>
 <body>
 <div class="container">
-    <!-- Inviter korisnik -->
     <div class="user-column">
         <h3>Inviter User</h3>
         <p th:if="${currentUser != null}">Username: <span th:text="${currentUser.userName}"></span></p>
@@ -31,14 +59,12 @@
         </form>
     </div>
 
-    <!-- Trenutni pridruženi korisnik -->
     <div class="joined-user-column">
         <h3>Joined User</h3>
         <p th:if="${joinedUser != null}">Username: <span th:text="${joinedUser.userName}"></span></p>
     </div>
 </div>
 
-<!-- Sekcija zadataka -->
 <div class="tasks-section">
     <h1>Tasks List:</h1>
     <form th:action="@{/tasks/new}" method="GET">
@@ -46,13 +72,20 @@
     </form>
 
     <ul>
-        <li th:each="task : ${tasks}">
-            <span th:text="${task.taskName}"></span>
-            <span> - Difficulty: <span th:text="${task.taskDifficulty}"></span></span>
-            <span> - Status: <span th:text="${task.taskStatus}"></span></span>
-            <form th:action="@{/tasks/assign/{id}(id=${task.id})}" method="POST" th:if="${task.taskStatus == 'OPEN'}">
-                <button type="submit">Take Task</button>
-            </form>
+        <li class="task-item" th:each="task : ${tasks}">
+            <div class="task-details">
+                <span th:text="${task.taskName}"></span>
+                <span> - Difficulty: <span th:text="${task.taskDifficulty}"></span></span>
+                <span> - Status: <span th:text="${task.taskStatus}"></span></span>
+            </div>
+            <div class="task-actions">
+                <form th:action="@{/tasks/assign/{id}(id=${task.id})}" method="POST" th:if="${task.taskStatus == 'OPEN'}">
+                    <button type="submit" class="take-button">Take Task</button>
+                </form>
+                <form th:action="@{/tasks/delete/{id}(id=${task.id})}" method="POST">
+                    <button type="submit" class="delete-button">Delete</button>
+                </form>
+            </div>
         </li>
     </ul>
 </div>
