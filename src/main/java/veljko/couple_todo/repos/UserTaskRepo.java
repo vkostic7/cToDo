@@ -4,4 +4,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import veljko.couple_todo.entities.UserTask;
 
 public interface UserTaskRepo extends JpaRepository<UserTask, Integer> {
+
+    void deleteTaskById(int taskId);
 }

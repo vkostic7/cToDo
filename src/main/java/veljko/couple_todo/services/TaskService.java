@@ -47,13 +47,6 @@ public class TaskService {
     }
 
     @Transactional
-    public Task updateTaskStatus(int taskId, TaskStatus status) {
-        Task task = taskRepo.findById(taskId);
-        task.setTaskStatus(status);
-        return taskRepo.save(task);
-    }
-
-    @Transactional
     public List<Task> getTasksForUserAndConnections(int userId) {
         List<Integer> userIds = new ArrayList<>();
         userIds.add(userId);
@@ -62,8 +55,13 @@ public class TaskService {
         if (connected != null) {
             userIds.add(connected.getId());
         }
-
         return taskRepo.findByCreatorIdIn(userIds);
+    }
+
+    @Transactional
+    public void deleteTask(int taskId) {
+        userTaskRepo.deleteTaskById(taskId);
+        taskRepo.deleteById(taskId);
     }
 
 

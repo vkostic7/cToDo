@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import veljko.couple_todo.entities.User;
+import veljko.couple_todo.services.UserConnectionService;
 import veljko.couple_todo.services.UserService;
 
 @Controller
@@ -18,12 +19,15 @@ public class UserController {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private UserConnectionService userConnectionService;
+
     @PostMapping("/users/connect")
     public String connectUser(@RequestParam String inviteCode) {
         User currentUser = getCurrentUser();
 
         try {
-            userService.connectUsers(inviteCode, currentUser);
+            userConnectionService.connectUsers(inviteCode, currentUser);
         } catch (RuntimeException e) {
             return "redirect:/choose?error=" + e.getMessage();
         }

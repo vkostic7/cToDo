@@ -45,6 +45,9 @@ public class TaskController {
         return "tasks";
     }
 
+     /**
+     * Adding New Tasks
+     **/
     @GetMapping("/tasks/new")
     public String showTaskForm(Model model) {
         model.addAttribute("task", new Task());
@@ -83,6 +86,12 @@ public class TaskController {
         userService.save(user);
 
         task.setTaskStatus(TaskStatus.IN_PROGRESS);
+        return "redirect:/tasks";
+    }
+
+    @PostMapping("/tasks/delete/{taskId}")
+    public String deleteTask(@PathVariable int taskId) {
+        taskService.deleteTask(taskId);
         return "redirect:/tasks";
     }
 
