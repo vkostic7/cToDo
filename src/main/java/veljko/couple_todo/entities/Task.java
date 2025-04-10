@@ -27,20 +27,19 @@ public class Task {
     @Column(name = "task_status")
     private TaskStatus taskStatus;
 
-    @OneToMany(mappedBy = "task", cascade = CascadeType.ALL)
-    private List<UserTask> userTasks = new ArrayList<>();
-
     @ManyToOne
     @JoinColumn(name = "creator_id", nullable = false)
     private User creator;
 
-    public User getCreator() {
-        return creator;
-    }
+    @ManyToOne
+    @JoinColumn(name = "shared_task_list_id")
+    private SharedTaskList sharedTaskList;
 
-    public void setCreator(User creator) {
-        this.creator = creator;
-    }
+    @ManyToOne
+    @JoinColumn(name = "assignee_id")
+    private User assignee;
+
+    // Getters and setters
 
     public int getId() {
         return id;
@@ -82,11 +81,27 @@ public class Task {
         this.taskStatus = taskStatus;
     }
 
-    public List<UserTask> getUserTasks() {
-        return userTasks;
+    public User getCreator() {
+        return creator;
     }
 
-    public void setUserTasks(List<UserTask> userTasks) {
-        this.userTasks = userTasks;
+    public void setCreator(User creator) {
+        this.creator = creator;
+    }
+
+    public SharedTaskList getSharedTaskList() {
+        return sharedTaskList;
+    }
+
+    public void setSharedTaskList(SharedTaskList sharedTaskList) {
+        this.sharedTaskList = sharedTaskList;
+    }
+
+    public User getAssignee() {
+        return assignee;
+    }
+
+    public void setAssignee(User assignee) {
+        this.assignee = assignee;
     }
 }

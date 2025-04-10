@@ -13,19 +13,18 @@ public class UserConnectionService {
 
     private final UserConnectionRepo userConnectionRepo;
     private final UserRepo userRepo;
+    private final SharedTaskListService sharedTaskListService;
 
     @Autowired
-    public UserConnectionService(UserConnectionRepo userConnectionRepo, UserRepo userRepo) {
+    public UserConnectionService(UserConnectionRepo userConnectionRepo, UserRepo userRepo, SharedTaskListService sharedTaskListService) {
         this.userConnectionRepo = userConnectionRepo;
         this.userRepo = userRepo;
+        this.sharedTaskListService = sharedTaskListService;
     }
 
     @Transactional
     public void connectUsers(String inviteCode, User invitedUser) {
-
         User inviter = userRepo.findByInviteCode(inviteCode);
-        UserConnection connection = new UserConnection();
-
         if (inviter == null) {
             throw new RuntimeException("Invalid invite code");
         }
@@ -33,9 +32,12 @@ public class UserConnectionService {
         if (alreadyConnected) {
             throw new RuntimeException("Users are already connected.");
         }
+
+        UserConnection connection = new UserConnection();
         connection.setInviter(inviter);
         connection.setInvited(invitedUser);
+        UserConnection savedConnection = userConnectionRepo.save(connection);
 
-        userConnectionRepo.save(connection);
+        sharedTaskListService.createSharedTaskListForConnection(savedConnection);
     }
 }

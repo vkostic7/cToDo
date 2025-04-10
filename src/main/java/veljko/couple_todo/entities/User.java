@@ -22,11 +22,11 @@ public class User {
     @Column(name = "invite_code")
     private String inviteCode;
 
-    @OneToMany(mappedBy = "user", cascade = {CascadeType.PERSIST, CascadeType.REMOVE}, orphanRemoval = true)
-    private List<UserTask> userTasks = new ArrayList<>();
-
     @OneToMany(mappedBy = "inviter", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<UserConnection> invitedUsers = new ArrayList<>();
+
+    @OneToMany(mappedBy = "invited", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<UserConnection> connectionsAsInvited = new ArrayList<>();
 
     public List<UserConnection> getInvitedUsers() {
         return invitedUsers;
@@ -66,13 +66,5 @@ public class User {
 
     public void setPassword(String password) {
         this.password = password;
-    }
-
-    public List<UserTask> getUserTasks() {
-        return userTasks;
-    }
-
-    public void setUserTasks(List<UserTask> userTasks) {
-        this.userTasks = userTasks;
     }
 }

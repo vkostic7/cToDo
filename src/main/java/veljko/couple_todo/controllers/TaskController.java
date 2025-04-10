@@ -5,10 +5,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.*;
 import veljko.couple_todo.entities.*;
 import veljko.couple_todo.services.TaskService;
 import veljko.couple_todo.services.UserService;
@@ -45,47 +42,42 @@ public class TaskController {
         return "tasks";
     }
 
-     /**
-     * Adding New Tasks
+    /**
+     * Adding New Tasks to Shared List
      **/
     @GetMapping("/tasks/new")
-    public String showTaskForm(Model model) {
+    public String showAddTaskToSharedListForm(Model model) {
         model.addAttribute("task", new Task());
         model.addAttribute("difficulties", TaskDifficulty.values());
         model.addAttribute("statuses", TaskStatus.values());
-        return "new-task";
+        User currentUser = getCurrentUser();
+        User joinedUser = userService.getConnectedUser(currentUser.getId());
+        model.addAttribute("joinedUser", joinedUser); // Potrebno za formu
+        return "new-shared-task"; // Kreiraj novu formu: new-shared-task.html
     }
 
-    @PostMapping("/tasks/new")
-    public String addTask(@ModelAttribute Task task) {
+    @PostMapping("/tasks/new/shared")
+    public String addTaskToSharedList(@ModelAttribute Task task, @RequestParam(value = "connectedUserId", required = false) Integer connectedUserId) {
         User currentUser = getCurrentUser();
 
         if (currentUser == null) {
             throw new RuntimeException("Current user must exist before creating a task");
         }
 
+        if (connectedUserId == null) {
+            throw new RuntimeException("Must specify the connected user for a shared task");
+        }
+
         task.setCreator(currentUser);
-        taskService.addTaskWithRelation(task, currentUser);
+        taskService.addTaskToSharedList(currentUser.getId(), connectedUserId, task);
         return "redirect:/tasks";
     }
 
     @PostMapping("/tasks/assign/{taskId}")
     public String assignTaskToUser(@PathVariable int taskId) {
-        User user = getCurrentUser();
-
-        Task task = taskService.getTaskById(taskId);
-        if (task == null || task.getTaskStatus() != TaskStatus.OPEN) {
-            throw new RuntimeException("Task is not available for assignment"); // TODO: Implement exception
-        }
-
-        UserTask userTask = new UserTask();
-        userTask.setUser(user);
-        userTask.setTask(task);
-
-        user.getUserTasks().add(userTask);
-        userService.save(user);
-
-        task.setTaskStatus(TaskStatus.IN_PROGRESS);
+        // Implementacija dodele taska jednom od povezanih korisnika
+        // Ovo će zahtevati dodatnu logiku i formu za odabir korisnika
+        // Za sada ostavljamo kao placeholder
         return "redirect:/tasks";
     }
 

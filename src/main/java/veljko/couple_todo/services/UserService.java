@@ -9,6 +9,7 @@ import veljko.couple_todo.entities.UserConnection;
 import veljko.couple_todo.repos.UserConnectionRepo;
 import veljko.couple_todo.repos.UserRepo;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -55,7 +56,7 @@ public class UserService {
 
     @Transactional
     public User getInviterForUser(int invitedUserId) {
-        UserConnection connection = userConnectionRepo.findByInvitedId(invitedUserId);
+        UserConnection connection = (UserConnection) userConnectionRepo.findByInvitedId(invitedUserId);
         if (connection != null) {
             return connection.getInviter();
         }
@@ -64,14 +65,14 @@ public class UserService {
 
     @Transactional
     public User getConnectedUser(int currentUserId) {
-        UserConnection asInviter = userConnectionRepo.findByInviterId(currentUserId);
-        if (asInviter != null) {
-            return asInviter.getInvited();
+        List<UserConnection> asInviterList = userConnectionRepo.findByInviterId(currentUserId);
+        if (!asInviterList.isEmpty()) {
+            return asInviterList.get(0).getInvited();
         }
 
-        UserConnection asInvited = userConnectionRepo.findByInvitedId(currentUserId);
-        if (asInvited != null) {
-            return asInvited.getInviter();
+        List<UserConnection> asInvitedList = userConnectionRepo.findByInvitedId(currentUserId);
+        if (!asInvitedList.isEmpty()) {
+            return asInvitedList.get(0).getInviter();
         }
 
         return null;

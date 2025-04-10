@@ -49,6 +49,8 @@
     </style>
 </head>
 <body>
+<a href="/choose" class="back-button">Back</a>
+
 <div class="container">
     <div class="user-column">
         <h3>Inviter User</h3>
@@ -66,9 +68,9 @@
 </div>
 
 <div class="tasks-section">
-    <h1>Tasks List:</h1>
+    <h1>Tasks List with <span th:if="${joinedUser != null}" th:text="${joinedUser.userName}"></span></h1>
     <form th:action="@{/tasks/new}" method="GET">
-        <button type="submit">Add New Task</button>
+        <button type="submit">Add New Shared Task</button>
     </form>
 
     <ul>
@@ -77,6 +79,7 @@
                 <span th:text="${task.taskName}"></span>
                 <span> - Difficulty: <span th:text="${task.taskDifficulty}"></span></span>
                 <span> - Status: <span th:text="${task.taskStatus}"></span></span>
+                <span th:if="${task.creator != null}"> - Created by: <span th:text="${task.creator.userName}"></span></span>
             </div>
             <div class="task-actions">
                 <form th:action="@{/tasks/assign/{id}(id=${task.id})}" method="POST" th:if="${task.taskStatus == 'OPEN'}">

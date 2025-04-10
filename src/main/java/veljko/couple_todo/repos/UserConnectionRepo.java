@@ -8,15 +8,16 @@ import veljko.couple_todo.entities.User;
 import veljko.couple_todo.entities.UserConnection;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface UserConnectionRepo extends JpaRepository<UserConnection, Integer> {
 
-    @Query("SELECT uc FROM UserConnection uc WHERE uc.inviter.id = :inviterId")
-    UserConnection findByInviterId(@Param("inviterId") int inviterId);
+    List<UserConnection> findByInviterId(int inviterId);
 
-    @Query("SELECT uc FROM UserConnection uc WHERE uc.invited.id = :invitedId")
-    UserConnection findByInvitedId(@Param("invitedId") int invitedId);
+    List<UserConnection> findByInvitedId(int invitedId);
+
+    Optional<UserConnection> findByInviterAndInvited(User inviter, User invited);
 
     @Query("SELECT uc FROM UserConnection uc WHERE uc.invited.id = :invitedId")
     List<UserConnection> findAllByInvitedId(@Param("invitedId") int invitedId);
