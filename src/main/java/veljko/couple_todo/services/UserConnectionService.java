@@ -22,20 +22,20 @@ public class UserConnectionService {
 
     @Transactional
     public void connectUsers(String inviteCode, User invitedUser) {
-
         User inviter = userRepo.findByInviteCode(inviteCode);
-        UserConnection connection = new UserConnection();
 
         if (inviter == null) {
             throw new RuntimeException("Invalid invite code");
         }
+
         boolean alreadyConnected = userConnectionRepo.existsConnectionBetween(inviter, invitedUser);
         if (alreadyConnected) {
             throw new RuntimeException("Users are already connected.");
         }
+
+        UserConnection connection = new UserConnection();
         connection.setInviter(inviter);
         connection.setInvited(invitedUser);
-
         userConnectionRepo.save(connection);
     }
 }

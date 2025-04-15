@@ -28,6 +28,22 @@ public class User {
     @OneToMany(mappedBy = "inviter", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<UserConnection> invitedUsers = new ArrayList<>();
 
+    @ManyToMany
+    @JoinTable(
+            name = "user_connections",
+            joinColumns = @JoinColumn(name = "inviter_id"),
+            inverseJoinColumns = @JoinColumn(name = "invited_id")
+    )
+    private List<User> connectedUsers = new ArrayList<>();
+
+    public List<User> getConnectedUsers() {
+        return connectedUsers;
+    }
+
+    public void setConnectedUsers(List<User> connectedUsers) {
+        this.connectedUsers = connectedUsers;
+    }
+
     public List<UserConnection> getInvitedUsers() {
         return invitedUsers;
     }
@@ -74,5 +90,12 @@ public class User {
 
     public void setUserTasks(List<UserTask> userTasks) {
         this.userTasks = userTasks;
+    }
+
+    public User getPartner() {
+        if (connectedUsers != null && !connectedUsers.isEmpty()) {
+            return connectedUsers.get(0);
+        }
+        return null;
     }
 }

@@ -10,11 +10,11 @@ public class UserConnection {
     private int id;
 
     @ManyToOne
-    @JoinColumn(name = "inviter_id", nullable = false)
+    @JoinColumn(name = "inviter_id")
     private User inviter;
 
     @ManyToOne
-    @JoinColumn(name = "invited_id", nullable = false)
+    @JoinColumn(name = "invited_id")
     private User invited;
 
     public int getId() {

@@ -1,7 +1,6 @@
 package veljko.couple_todo.entities;
 
 import jakarta.persistence.*;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,12 +33,25 @@ public class Task {
     @JoinColumn(name = "creator_id", nullable = false)
     private User creator;
 
-    public User getCreator() {
-        return creator;
+    @ManyToOne
+    @JoinColumn(name = "shared_list_id", nullable = true)
+    private SharedList sharedList;
+
+    @ManyToOne
+    @JoinColumn(name = "assigned_to_id")
+    private User assignedTo;
+
+    public Task() {
     }
 
-    public void setCreator(User creator) {
+    public Task(String taskName, String description, TaskDifficulty taskDifficulty, TaskStatus taskStatus, User creator, SharedList sharedList, User assignedTo) {
+        this.taskName = taskName;
+        this.description = description;
+        this.taskDifficulty = taskDifficulty;
+        this.taskStatus = taskStatus;
         this.creator = creator;
+        this.sharedList = sharedList;
+        this.assignedTo = assignedTo;
     }
 
     public int getId() {
@@ -88,5 +100,58 @@ public class Task {
 
     public void setUserTasks(List<UserTask> userTasks) {
         this.userTasks = userTasks;
+    }
+
+    public User getCreator() {
+        return creator;
+    }
+
+    public void setCreator(User creator) {
+        this.creator = creator;
+    }
+
+    public SharedList getSharedList() {
+        return sharedList;
+    }
+
+    public void setSharedList(SharedList sharedList) {
+        this.sharedList = sharedList;
+    }
+
+    public User getAssignedTo() {
+        return assignedTo;
+    }
+
+    public void setAssignedTo(User assignedTo) {
+        this.assignedTo = assignedTo;
+    }
+
+    @Override
+    public String toString() {
+        return "Task{" +
+                "id=" + id +
+                ", taskName='" + taskName + '\'' +
+                ", description='" + description + '\'' +
+                ", taskDifficulty=" + taskDifficulty +
+                ", taskStatus=" + taskStatus +
+                ", creator=" + creator +
+                ", sharedList=" + sharedList +
+                ", assignedTo=" + assignedTo +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Task task = (Task) o;
+
+        return id == task.id;
+    }
+
+    @Override
+    public int hashCode() {
+        return id;
     }
 }
