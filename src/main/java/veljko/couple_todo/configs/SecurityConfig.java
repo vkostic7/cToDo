@@ -16,11 +16,13 @@ import veljko.couple_todo.entities.User;
 import veljko.couple_todo.repos.UserRepo;
 
 @Configuration
-@EnableWebSecurity
-public class SecurityConfig {
+public class SecurityConfig {  // Remove @EnableWebSecurity - it's auto-configured in Spring Boot 3.x
 
-    @Autowired
-    private UserRepo userRepo;
+    private final UserRepo userRepo;
+
+    public SecurityConfig(UserRepo userRepo) {
+        this.userRepo = userRepo;
+    }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -46,28 +48,25 @@ public class SecurityConfig {
     }
 
     @Bean
-    AuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
-        authProvider.setUserDetailsService(userDetailsService());
-        authProvider.setPasswordEncoder(passwordEncoder());
-        return authProvider;
-    }
-
-    @Bean
     public UserDetailsService userDetailsService() {
         return username -> {
             User user = userRepo.findByUserName(username);
             if (user == null) {
                 throw new UsernameNotFoundException("User not found");
             }
-            System.out.println("Login pokušaj: " + user.getUserName());
-            System.out.println("Lozinka iz baze: " + user.getPassword());
-            System.out.println("Invite code: " + user.getInviteCode());
             return org.springframework.security.core.userdetails.User
                     .withUsername(user.getUserName())
                     .password(user.getPassword())
                     .roles("USER")
                     .build();
         };
+    }
+
+    @Bean
+    public AuthenticationProvider authenticationProvider(UserDetailsService userDetailsService, PasswordEncoder passwordEncoder) {
+        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
+        authProvider.setUserDetailsService(userDetailsService);
+        authProvider.setPasswordEncoder(passwordEncoder);
+        return authProvider;
     }
 }

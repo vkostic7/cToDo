@@ -23,7 +23,8 @@
             </option>
         </select>
     </div>
-    <button type="submit">Save</button>
-</form>
+    <input type="hidden" name="sharedWithId" th:if="${sharedWithId != null}" th:value="${sharedWithId}">
+
+    <button type="submit">Save Task</button></form>
 </body>
 </html>

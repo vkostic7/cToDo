@@ -15,11 +15,14 @@ import veljko.couple_todo.services.UserService;
 @RequestMapping("/register")
 public class RegisterController {
 
-    @Autowired
     private UserService userService;
+    private PasswordEncoder passwordEncoder;
 
     @Autowired
-    PasswordEncoder passwordEncoder;
+    public RegisterController(UserService userService, PasswordEncoder passwordEncoder) {
+        this.userService = userService;
+        this.passwordEncoder = passwordEncoder;
+    }
 
     @GetMapping
     public String showRegisterForm() {

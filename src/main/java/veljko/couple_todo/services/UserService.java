@@ -9,6 +9,7 @@ import veljko.couple_todo.entities.UserConnection;
 import veljko.couple_todo.repos.UserConnectionRepo;
 import veljko.couple_todo.repos.UserRepo;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -33,6 +34,11 @@ public class UserService {
     public User save(User user) {
         return userRepo.save(user);
     }
+
+    public User findById(int id) {
+        return userRepo.findById(id);
+    }
+
 
     @Transactional
     public User registerUser(User user) {
@@ -77,4 +83,24 @@ public class UserService {
 
         return null;
     }
+
+    @Transactional
+    public List<User> getConnectedUsers(int userId) {
+        List<User> connectedUsers = new ArrayList<>();
+
+        // Get users this user invited
+        List<UserConnection> asInviter = userConnectionRepo.findByInviterId(userId);
+        for (UserConnection conn : asInviter) {
+            connectedUsers.add(conn.getInvited());
+        }
+
+        // Get users that invited this user
+        List<UserConnection> asInvited = userConnectionRepo.findByInvitedId(userId);
+        for (UserConnection conn : asInvited) {
+            connectedUsers.add(conn.getInviter());
+        }
+
+        return connectedUsers;
+    }
+
 }

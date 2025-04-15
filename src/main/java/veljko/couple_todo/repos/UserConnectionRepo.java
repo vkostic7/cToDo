@@ -13,13 +13,10 @@ import java.util.List;
 public interface UserConnectionRepo extends JpaRepository<UserConnection, Integer> {
 
     @Query("SELECT uc FROM UserConnection uc WHERE uc.inviter.id = :inviterId")
-    List<UserConnection> findByInviterId(@Param("inviterId") int inviterId); // Promeni povratni tip u List
+    List<UserConnection> findByInviterId(@Param("inviterId") int inviterId);
 
     @Query("SELECT uc FROM UserConnection uc WHERE uc.invited.id = :invitedId")
-    List<UserConnection> findByInvitedId(@Param("invitedId") int invitedId); // Promeni povratni tip u List
-
-    @Query("SELECT uc FROM UserConnection uc WHERE uc.invited.id = :invitedId")
-    List<UserConnection> findAllByInvitedId(@Param("invitedId") int invitedId);
+    List<UserConnection> findByInvitedId(@Param("invitedId") int invitedId);
 
     @Query("""
     SELECT COUNT(uc) > 0

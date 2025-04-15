@@ -64,5 +64,18 @@ public class TaskService {
         taskRepo.deleteById(taskId);
     }
 
+    @Transactional
+    public Task save(Task task) {
+        return taskRepo.save(task);
+    }
 
+    @Transactional
+    public List<Task> getTasksBetweenUsers(int userAId, int userBId) {
+        return taskRepo.findSharedTasksBetweenUsers(userAId, userBId);
+    }
+
+    @Transactional
+    public List<Task> getTasksForUserOnly(int userId) {
+        return taskRepo.findByCreatorIdAndSharedListIsNull(userId);
+    }
 }

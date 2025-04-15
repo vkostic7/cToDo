@@ -61,13 +61,26 @@
 <body>
 <div class="container">
     <h2>How would you like to use Todo?</h2>
-    <a href="/tasks" class="button">Create tasks alone</a>
+    <a href="/tasks?mode=solo" class="button">Create tasks alone</a>
+
     <form th:action="@{/users/connect}" method="POST">
         <label for="inviteCode">Invite Code:</label>
         <input type="text" id="inviteCode" name="inviteCode" placeholder="Invite Code" required>
         <button type="submit">Join</button>
     </form>
+
+    <h3>Or join an existing shared list:</h3>
+    <form th:action="@{/tasks}" method="GET">
+        <ul>
+            <li th:each="user : ${connectedUsers}">
+                <input type="radio" name="sharedWithId" th:value="${user.id}" required>
+                <span th:text="${user.userName}"></span>
+            </li>
+        </ul>
+        <button type="submit">Continue</button>
+    </form>
 </div>
+
 
 </body>
 </html>

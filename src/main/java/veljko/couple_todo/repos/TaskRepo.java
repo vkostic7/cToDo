@@ -11,31 +11,19 @@ import java.util.List;
 
 @Repository
 public interface TaskRepo extends JpaRepository<Task, Integer> {
-
     List<Task> findAll();
 
-    @Query("SELECT t FROM Task t WHERE t.taskStatus = 'OPEN'")
-    List<Task> findOpenTasks();
-
-    List<Task> findByTaskStatus(TaskStatus status);
-
-    public Task findById(int id);
-
-    @Query("SELECT t FROM Task t JOIN UserTask ut ON ut.task.id = t.id WHERE ut.user.id = :userId OR t.creator.id = :userId")
-    List<Task> findTasksByUserAccess(@Param("userId") int userId);
-
-    @Query("""
-    SELECT t FROM Task t 
-    WHERE t.creator.id = :userId 
-    OR t.creator.id IN (
-        SELECT uc.inviter.id 
-        FROM UserConnection uc 
-        WHERE uc.invited.id = :userId
-    )
-""")
-    List<Task> findTasksByUserAndConnections(@Param("userId") int userId);
+    Task findById(int id);
 
     List<Task> findByCreatorIdIn(List<Integer> ids);
 
+    public List<Task> findByCreatorIdAndSharedListIsNull(Integer creatorId);
+
+    @Query("""
+    SELECT t FROM Task t
+    WHERE t.sharedList.user1.id = :userAId AND t.sharedList.user2.id = :userBId
+    OR t.sharedList.user1.id = :userBId AND t.sharedList.user2.id = :userAId
+""")
+    List<Task> findSharedTasksBetweenUsers(@Param("userAId") int userAId, @Param("userBId") int userBId);
 
 }
