@@ -9,8 +9,12 @@ import veljko.couple_todo.services.SharedListService;
 import veljko.couple_todo.services.TaskService;
 import veljko.couple_todo.services.UserService;
 import veljko.couple_todo.utils.CurrentUser;
+import veljko.couple_todo.repos.UserTaskRepo;
 
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.stream.Collectors;
 
 @Controller
 public class TaskController {
@@ -19,14 +23,17 @@ public class TaskController {
     private UserService userService;
     private SharedListService sharedListService;
     private CurrentUser currentUser;
+    private UserTaskRepo userTaskRepo;
 
     @Autowired
     public TaskController(TaskService taskService, UserService userService,
-                          SharedListService sharedListService, CurrentUser currentUser) {
+                          SharedListService sharedListService, CurrentUser currentUser,
+                          UserTaskRepo userTaskRepo) {
         this.taskService = taskService;
         this.userService = userService;
         this.sharedListService = sharedListService;
         this.currentUser = currentUser;
+        this.userTaskRepo = userTaskRepo;
     }
 
     @GetMapping("/tasks")
@@ -35,15 +42,43 @@ public class TaskController {
         model.addAttribute("currentUser", user);
 
         List<Task> tasks;
+
         if (sharedWithId != null) {
-            // Specific shared user selected
             User joinedUser = userService.findById(sharedWithId);
             model.addAttribute("joinedUser", joinedUser);
             tasks = taskService.getTasksBetweenUsers(user.getId(), sharedWithId);
+
+            Map<Integer, List<Task>> tasksByAssignee = new HashMap<>();
+
+            tasksByAssignee.put(user.getId(), tasks.stream()
+                    .filter(task -> task.getAssignedTo() != null && task.getAssignedTo().getId() == user.getId())
+                    .collect(Collectors.toList()));
+
+            tasksByAssignee.put(joinedUser.getId(), tasks.stream()
+                    .filter(task -> task.getAssignedTo() != null && task.getAssignedTo().getId() == joinedUser.getId())
+                    .collect(Collectors.toList()));
+
+            List<Task> unassignedTasks = tasks.stream()
+                    .filter(task -> task.getAssignedTo() == null)
+                    .collect(Collectors.toList());
+
+            model.addAttribute("tasksByAssignee", tasksByAssignee);
+            model.addAttribute("unassignedTasks", unassignedTasks);
         } else {
             // No specific shared user - show personal tasks
             model.addAttribute("joinedUser", null);
             tasks = taskService.getTasksForUserOnly(user.getId());
+
+            List<Task> assignedToUser = tasks.stream()
+                    .filter(task -> task.getAssignedTo() != null && task.getAssignedTo().getId() == user.getId())
+                    .collect(Collectors.toList());
+
+            List<Task> unassignedTasks = tasks.stream()
+                    .filter(task -> task.getAssignedTo() == null)
+                    .collect(Collectors.toList());
+
+            model.addAttribute("assignedToUser", assignedToUser);
+            model.addAttribute("unassignedTasks", unassignedTasks);
         }
 
         model.addAttribute("tasks", tasks);
@@ -69,6 +104,7 @@ public class TaskController {
         }
 
         task.setCreator(user);
+        task.setTaskStatus(TaskStatus.OPEN);
 
         if (sharedWithId != null) {
             User sharedWith = userService.findById(sharedWithId);
@@ -77,11 +113,9 @@ public class TaskController {
                 task.setSharedList(sharedList);
             }
         }
-        // Otherwise its personal
 
         taskService.save(task);
 
-        // Redirect back to the same view
         if (sharedWithId != null) {
             return "redirect:/tasks?sharedWithId=" + sharedWithId;
         } else {
@@ -90,23 +124,49 @@ public class TaskController {
     }
 
     @PostMapping("/tasks/assign/{taskId}")
-    public String assignTaskToUser(@PathVariable int taskId) {
-        User user = currentUser.getCurrentUser();
+    public String assignTaskToUser(
+            @PathVariable int taskId,
+            @RequestParam(required = false) Integer assignToUserId,
+            @RequestParam(required = false) Integer sharedWithId) {
+
+        User currentUserObj = currentUser.getCurrentUser();
 
         Task task = taskService.getTaskById(taskId);
-        if (task == null || task.getTaskStatus() != TaskStatus.OPEN) {
-            throw new RuntimeException("Task is not available for assignment"); // TODO: Implement exception
+        if (task == null) {
+            throw new RuntimeException("Task not found");
         }
 
-        UserTask userTask = new UserTask();
-        userTask.setUser(user);
-        userTask.setTask(task);
+        User assignToUser;
+        if (assignToUserId != null) {
+            assignToUser = userService.findById(assignToUserId);
+        } else {
+            assignToUser = currentUserObj;
+        }
 
-        user.getUserTasks().add(userTask);
-        userService.save(user);
+        if (assignToUser == null) {
+            throw new RuntimeException("User not found for assignment");
+        }
 
+        task.setAssignedTo(assignToUser);
         task.setTaskStatus(TaskStatus.IN_PROGRESS);
-        return "redirect:/tasks";
+
+        Task savedTask = taskService.save(task);
+
+        try {
+            UserTask userTask = new UserTask();
+            userTask.setUser(assignToUser);
+            userTask.setTask(savedTask);
+            userTaskRepo.save(userTask);
+        } catch (Exception e) {
+            System.err.println("Error creating UserTask: " + e.getMessage());
+            // Ne prekidamo izvršavanje ako se desi greška, jer je najbitnije da je task dodeljen
+        }
+
+        if (sharedWithId != null) {
+            return "redirect:/tasks?sharedWithId=" + sharedWithId;
+        } else {
+            return "redirect:/tasks";
+        }
     }
 
     @PostMapping("/tasks/delete/{taskId}")
@@ -120,5 +180,4 @@ public class TaskController {
             return "redirect:/tasks";
         }
     }
-
 }
