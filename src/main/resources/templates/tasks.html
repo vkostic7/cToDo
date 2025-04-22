@@ -4,7 +4,7 @@
     <title>Tasks</title>
     <style>
         body {
-            background-color: #000000; /* Crna pozadina */
+            background-color: #000000;
             color: #e0e0e0;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
@@ -20,7 +20,7 @@
         .task-section {
             flex: 1;
             min-width: 300px;
-            background-color: #0f3823; /* Tamno zelena pozadina sekcija */
+            background-color: #0f3823;
             padding: 15px;
             border-radius: 8px;
             box-shadow: 0 4px 8px rgba(0,0,0,0.3);
@@ -33,9 +33,9 @@
         .task-item {
             padding: 10px;
             margin-bottom: 10px;
-            border: 1px solid #1a4731; /* Tamnije zeleni okvir */
+            border: 1px solid #1a4731;
             border-radius: 4px;
-            background-color: #0a2a1a; /* Još tamnija zelena za pozadinu taskova */
+            background-color: #0a2a1a;
         }
 
         .task-actions {
@@ -54,7 +54,7 @@
         }
 
         .take-button, .assign-button {
-            background-color: #2e7d32; /* Zelena za dugmad dodele */
+            background-color: #2e7d32;
         }
 
         .take-button:hover, .assign-button:hover {
@@ -62,27 +62,41 @@
         }
 
         .delete-button {
-            background-color: #800020; /* Burgundy/bordo boja za brisanje */
+            background-color: #800020;
         }
 
         .delete-button:hover {
-            background-color: #9a0025; /* Svetlija burgundy boja na hover */
+            background-color: #9a0025;
         }
 
-        .add-button {
+        .add-button, .generate-button {
             background-color: #1976d2;
             padding: 8px 16px;
             margin-bottom: 15px;
         }
 
-        .add-button:hover {
+        .add-button:hover, .generate-button:hover {
             background-color: #2196f3;
+        }
+
+        .button-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
         }
 
         .footer {
             margin-top: 20px;
             display: flex;
             gap: 10px;
+        }
+
+        .footer button {
+            background-color: #2e7d32; /* Zelena pozadina za footer dugmad */
+        }
+
+        .footer button:hover {
+            background-color: #388e3c; /* Svetlija zelena na hover */
         }
 
         .difficulty-open {
@@ -96,7 +110,7 @@
         }
 
         .difficulty-hard {
-            color: #9a0025; /* Promenjena u burgundy */
+            color: #9a0025;
             font-weight: bold;
         }
 
@@ -118,7 +132,7 @@
             justify-content: space-between;
             margin-bottom: 10px;
             padding-bottom: 5px;
-            border-bottom: 1px solid #1a4731; /* Tamnije zeleni okvir */
+            border-bottom: 1px solid #1a4731;
         }
 
         .section-title {
@@ -139,11 +153,19 @@
 <body>
 <h1>Todo Tasks</h1>
 
-<!-- Dugme za dodavanje novog zadatka -->
-<form th:action="@{/tasks/new}" method="GET">
-    <input type="hidden" name="sharedWithId" th:if="${joinedUser != null}" th:value="${joinedUser.id}">
-    <button type="submit" class="add-button">Add New Task</button>
-</form>
+<!-- Container za dugmad -->
+<div class="button-container">
+    <!-- Dugme za dodavanje novog zadatka -->
+    <form th:action="@{/tasks/new}" method="GET">
+        <input type="hidden" name="sharedWithId" th:if="${joinedUser != null}" th:value="${joinedUser.id}">
+        <button type="submit" class="add-button">Add New Task</button>
+    </form>
+
+    <!-- Dugme za generisanje invite koda -->
+    <form th:action="@{/users/connect/generate}" method="GET">
+        <button type="submit" class="generate-button">Generate Invite Code</button>
+    </form>
+</div>
 
 <div class="container">
     <!-- SEKCIJA 1: Moji zadaci -->
